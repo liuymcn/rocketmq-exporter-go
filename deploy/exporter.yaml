@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rocketmq-exporter-deployment
+  namespace: monitor
+  labels:
+    app: rocketmq-exporter
+spec:
+  selector:
+    matchLabels:
+      app: rocketmq-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rocketmq-exporter
+    spec:
+      containers:
+        - name: rocketmq-exporter
+          image: [waiting...]/rocketmq-exporter
+          imagePullPolicy: Always
+          ports:
+            - name: http-port
+              containerPort: 9999
+          args: [ "--rocketmq.nameserver=[ip]", "--log.file.enable" ]
+          resources:
+            limits:
+              cpu: 0.5m
+              memory: 50Mi
+            requests:
+              cpu: 0.3m
+              memory: 30Mi
+          volumeMounts:
+            - name: exporter-log
+              mountPath: /home/exporter/logs
+            - name: date-config
+              mountPath: /etc/localtime
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 9999
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 10
+      volumes:
+        - name: exporter-log
+          emptyDir: {}
+        - name: date-config
+          hostPath:
+            path: /etc/localtime
+                      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rocketmq-exporter-service
+  namespace: monitor
+  labels:
+    app: rocketmq-exporter
+spec:
+  selector:
+    app: rocketmq-exporter
+  ports:
+    - protocol: TCP
+      name: grpc
+      port: 9999
+      targetPort: 9999

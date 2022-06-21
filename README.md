@@ -3,7 +3,7 @@ An application of Rocketmq exporter for Prometheus which purely developed by gol
 
 Table of Contents
 -----------------
-- [Rocketmq_Exporter](#rocketmq_exporter)
+- [rocketmq-exporter-go](#rocketmq-exporter-go)
   - [Table of Contents](#table-of-contents)
   - [Note](#note)
   - [Dependency](#dependency)
@@ -23,6 +23,8 @@ Table of Contents
   - [Grafana Dashboard](#grafana-dashboard)
   - [Contribute](#contribute)
   - [Contributors ✨](#contributors-)
+  - [Donation](#donation)
+  - [License](#license)
 
 Note
 ----------
@@ -206,11 +208,17 @@ Grafana Dashboard
 Contribute
 ------------
 
+If you like Rocketmq Exporter, please give me a star. This will help more people know Rocketmq Exporter.
+
+Please feel free to send me [pull requests](https://github.com/liuymcn/rocketmq-exporter-go/pulls).
+
 Task List
 
 - improve the document such as metric descruption
 - the guide of the using metric to judge whether the system is healthy
 - the consumer is not completely, have to be updated
+- fix some json serialization logic
+- fix some strange logic
 - some exception has not been handled
 - add test unit
 - add ACL feature
@@ -224,3 +232,14 @@ Thanks goes to these wonderful people:
 
 <a href="https://github.com/liuymcn/rocketmq-exporter-go/graphs/contributors"> come on! </a>
 
+Donation
+--------
+
+Your donation will encourage me to continue to improve Rocketmq Exporter. Support Alipay donation.
+
+![](https://github.com/liuymcn/rocketmq_exporter/raw/main/alipay.png)
+
+License
+-------
+
+Code is licensed under the [Apache License 2.0](https://github.com/liuymcn/rocketmq-exporter-go/blob/main/LICENSE).
