@@ -91,6 +91,7 @@ Metrics
 ### Producer
 
 | Name | Help |
+| ---- | ---- |
 | rocketmq_producer_tps | TopicPutNums |
 | rocketmq_producer_offset | TopicOffset |
 | rocketmq_producer_message_size | TopicPutMessageSize |
