@@ -91,6 +91,7 @@ Metrics
 ### Producer
 
 | Name | Help |
+| ---- | ---- |
 | rocketmq_producer_tps | TopicPutNums |
 | rocketmq_producer_offset | TopicOffset |
 | rocketmq_producer_message_size | TopicPutMessageSize |
@@ -239,7 +240,7 @@ Donation
 
 Your donation will encourage me to continue to improve Rocketmq Exporter. Support Alipay donation.
 
-![](https://github.com/liuymcn/rocketmq_exporter/raw/main/alipay.png)
+![](https://github.com/liuymcn/rocketmq-exporter-go/raw/main/alipay.png)
 
 License
 -------
