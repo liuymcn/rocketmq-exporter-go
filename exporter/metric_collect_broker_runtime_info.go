@@ -465,6 +465,26 @@ func (e *RocketmqExporter) CollectBrokerRuntimeInfo(ch chan<- prometheus.Metric,
 		strconv.Itoa(int(runtime.BootTimestamp)),
 	)
 	ch <- prometheus.MustNewConstMetric(
+		rocketmqBrokeRuntimePutLatency99,
+		prometheus.GaugeValue,
+		runtime.PutLatency99,
+		broker.Cluster,
+		brokerAddress,
+		strconv.Itoa(int(runtime.BrokerVersion)),
+		runtime.BrokerVersionDesc,
+		strconv.Itoa(int(runtime.BootTimestamp)),
+	)
+	ch <- prometheus.MustNewConstMetric(
+		rocketmqBrokeRuntimePutLatency999,
+		prometheus.GaugeValue,
+		runtime.PutLatency999,
+		broker.Cluster,
+		brokerAddress,
+		strconv.Itoa(int(runtime.BrokerVersion)),
+		runtime.BrokerVersionDesc,
+		strconv.Itoa(int(runtime.BootTimestamp)),
+	)
+	ch <- prometheus.MustNewConstMetric(
 		rocketmqBrokeRuntimeDispatchMaxBuffer,
 		prometheus.GaugeValue,
 		float64(runtime.DispatchMaxBuffer),

@@ -71,6 +71,8 @@ var (
 	rocketmqBrokeRuntimePutTps600                             *prometheus.Desc
 	rocketmqBrokeRuntimePutTps60                              *prometheus.Desc
 	rocketmqBrokeRuntimePutTps10                              *prometheus.Desc
+	rocketmqBrokeRuntimePutLatency99                        *prometheus.Desc
+	rocketmqBrokeRuntimePutLatency999                            *prometheus.Desc
 	rocketmqBrokeRuntimeDispatchMaxBuffer                     *prometheus.Desc
 	rocketmqBrokeRuntimePullThreadPoolQueueCapacity           *prometheus.Desc
 	rocketmqBrokeRuntimeSendThreadPoolQueueCapacity           *prometheus.Desc
@@ -508,6 +510,18 @@ func InitMetricDesc() {
 	rocketmqBrokeRuntimePutTps10 = prometheus.NewDesc(
 		"rocketmq_brokeruntime_put_tps10",
 		"brokerRuntimePutTps10",
+		brokerRuntimeMetricLabelNames,
+		nil,
+	)
+	rocketmqBrokeRuntimePutLatency99 = prometheus.NewDesc(
+		"rocketmq_brokeruntime_put_latency_99",
+		"brokerRuntimePutLatency99",
+		brokerRuntimeMetricLabelNames,
+		nil,
+	)
+	rocketmqBrokeRuntimePutLatency999 = prometheus.NewDesc(
+		"rocketmq_brokeruntime_put_latency_999",
+		"brokerRuntimePutLatency999",
 		brokerRuntimeMetricLabelNames,
 		nil,
 	)

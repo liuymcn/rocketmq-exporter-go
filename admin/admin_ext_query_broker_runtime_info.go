@@ -85,6 +85,8 @@ type BrokerRuntimeInfo struct {
 	Runtime                               string
 	BrokerVersion                         int64
 	BrokerVersionDesc                     string
+	PutLatency99                          float64
+	PutLatency999                         float64
 	PutTps                                *PutTps
 	GetMissTps                            *PutTps
 	GetTransferedTps                      *PutTps
@@ -145,6 +147,10 @@ func newBrokerRuntimeInfo(kvInfo BrokerRuntimeKVInfo) *BrokerRuntimeInfo {
 	getMissTps := newPutTps(table["getMissTps"])
 	putTps := newPutTps(table["putTps"])
 
+	putLatency99, _ := strconv.ParseFloat(table["putLatency99"], 64)
+	putLatency999, _ := strconv.ParseFloat(table["putLatency999"], 64)
+
+
 	putMessageDistributeTime := buildPutMessageDistributeTime(table["putMessageDistributeTime"])
 
 	info := &BrokerRuntimeInfo{
@@ -183,6 +189,8 @@ func newBrokerRuntimeInfo(kvInfo BrokerRuntimeKVInfo) *BrokerRuntimeInfo {
 		RemainHowManyDataToFlush:              remainHowManyDataToFlush,
 		PutMessageTimesTotal:                  putMessageTimesTotal,
 		CommitLogDiskRatio:                    commitLogDiskRatio,
+		PutLatency99:                          putLatency99,
+		PutLatency999:                         putLatency999,
 		PutTps:                                putTps,
 		GetFoundTps:                           getFoundTps,
 		GetTotalTps:                           getTotalTps,
