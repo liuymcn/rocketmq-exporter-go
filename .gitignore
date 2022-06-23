@@ -9,7 +9,10 @@
 *.dll
 *.so
 *.dylib
-rocketmq-exporter
+
+# build
+rocketmq-exporter-go
+linux*
 
 # Test binary, built with `go test -c`
 *.test

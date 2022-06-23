@@ -12,6 +12,7 @@ Table of Contents
     - [Build For Linux on Windows](#build-for-linux-on-windows)
   - [Run](#run)
     - [Run Directly](#run-directly)
+    - [Docker build](#docker-build)
     - [Docker Run](#docker-run)
   - [Flags](#flags)
   - [Metrics](#metrics)
@@ -64,9 +65,17 @@ Run
 go run ./main.go --rocketmq.nameserver=[nameserverIp]
 ```
 
+### Docker build
+use docker buildx
+```shell
+mkdir [linux-GOARCH(had been replace actually value)]
+# and the put the go file which has been built into the folder
+docker buildx build --platform [platform] -t [tag] . [--push]
+```
+> Note: if you meet **error: multiple platforms feature is currently not supported for docker driver. Please switch to a different driver (eg. "docker buildx create --use")** , you should create a new [driver](https://docs.docker.com/engine/reference/commandline/buildx_create/)
+
 ### Docker Run
 ```shell
-docker build --tag [imageTag] .
 docker run -it --rm -p 9999:9999 [imageTag] --rocketmq.nameserver=[nameserverIp]
 ```
 
