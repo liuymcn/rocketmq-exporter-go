@@ -3,7 +3,7 @@ package exporter
 import (
 	"context"
 
-	"github.com/golang/glog"
+	"github.com/apache/rocketmq-client-go/v2/rlog"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -20,7 +20,10 @@ func (e *RocketmqExporter) CollectBrokerStatsByTopic(ch chan<- prometheus.Metric
 	groups, err := e.admin.ExamineTopicConsumeByWho(context.Background(), topic)
 
 	if err != nil {
-		glog.Errorf("CollectBrokerStatsByTopic ExamineTopicConsumeByWho topic:%s ", topic, err)
+		rlog.Error("CollectBrokerStatsByTopic ExamineTopicConsumeByWho:", map[string]interface{}{
+			"topic": topic,
+			"err":   err,
+		})
 		return
 	}
 
