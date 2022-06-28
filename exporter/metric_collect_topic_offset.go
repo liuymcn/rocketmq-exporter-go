@@ -14,7 +14,7 @@ func (e *RocketmqExporter) CollectTopicOffset(ch chan<- prometheus.Metric, topic
 	topicStatsTable, err := e.admin.ExamineTopicStats(context.Background(), topic)
 
 	if err != nil {
-		rlog.Error("CollectOnlineConsumerMetric ExamineConsumerRunningInfo ", map[string]interface{}{
+		rlog.Error("CollectTopicOffset ExamineTopicStats ", map[string]interface{}{
 			"topic": topic,
 			"err":   err,
 		})

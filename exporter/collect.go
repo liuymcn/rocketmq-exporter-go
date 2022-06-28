@@ -6,7 +6,6 @@ import (
 
 	"github.com/rocketmq-exporter-go/admin"
 
-	"strings"
 	"sync"
 
 	"github.com/apache/rocketmq-client-go/v2/rlog"
@@ -26,20 +25,23 @@ func (e *RocketmqExporter) collect(ch chan<- prometheus.Metric) {
 
 	topicChannel := make(chan string)
 
+	// unique group
+	// a group match normal topic and retry topic
+	var groupMap = sync.Map{}
+
 	collectByTopic := func(topic string) {
 		defer waitGroup.Done()
 
 		e.CollectTopicOffset(ch, topic)
-
-		if strings.HasPrefix(topic, RetryGroupTopicPrefix) || strings.HasPrefix(topic, DlqGroupTopicPrefix) {
-			return
-		}
 
 		e.CollectBrokerStatsByTopic(ch, topic)
 
 		groups, err := e.admin.ExamineTopicConsumeByWho(context.Background(), topic)
 
 		if err != nil {
+			rlog.Error("ExamineTopicConsumeByWho err ", map[string]interface{}{
+				"topic": topic,
+			})
 			return
 		}
 
@@ -49,10 +51,19 @@ func (e *RocketmqExporter) collect(ch chan<- prometheus.Metric) {
 			var brokerAddress = broker.SelectBrokerAddr()
 			onlineConsumerConnection, err := e.admin.QueryConsumerConnectionInfo(context.Background(), group, brokerAddress)
 			if err != nil {
+				rlog.Error("QueryConsumerConnectionInfo err ", map[string]interface{}{
+					"topic":         topic,
+					"group":         group,
+					"brokerAddress": brokerAddress,
+				})
 				return
 			}
 			e.CollectConsumerOffset(ch, topic, group, onlineConsumerConnection)
-			e.CollectOnlineConsumerMetric(ch, group, onlineConsumerConnection)
+
+			if _, ok := groupMap.Load(group); !ok {
+				groupMap.Store(group, onlineConsumerConnection)
+			}
+
 		}
 	}
 
@@ -67,12 +78,7 @@ func (e *RocketmqExporter) collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	topicSize := len(topics)
-	if topicSize > 1 {
-		topicSize = minx(topicSize/2, e.workers)
-	}
-
-	for w := 1; w <= topicSize; w++ {
+	for w := 1; w <= e.workers; w++ {
 		go loopTopics(w)
 	}
 
@@ -85,14 +91,49 @@ func (e *RocketmqExporter) collect(ch chan<- prometheus.Metric) {
 
 	waitGroup.Wait()
 
+	groupChannel := make(chan string)
+
+	collectByGroup := func(group string) {
+		defer waitGroup.Done()
+
+		onlineConsumerConnection, _ := groupMap.Load(group)
+
+		e.CollectOnlineConsumerMetric(ch, group, onlineConsumerConnection.(*admin.ConsumerConnection))
+	}
+
+	loopGroup := func(id int) {
+		ok := true
+		for ok {
+			group, open := <-groupChannel
+			ok = open
+			if open {
+				collectByGroup(group)
+			}
+		}
+	}
+
+	for w := 1; w <= e.workers; w++ {
+		go loopGroup(w)
+	}
+
+	groupMap.Range(func(key, value any) bool {
+		waitGroup.Add(1)
+		groupChannel <- key.(string)
+		return true
+	})
+
+	close(groupChannel)
+
+	waitGroup.Wait()
+
+	brokerChannel := make(chan *admin.BrokerData)
+
 	collectByBroker := func(broker *admin.BrokerData) {
 		defer waitGroup.Done()
 
 		e.CollectBrokerRuntimeInfo(ch, broker)
 		e.CollectBrokerStats(ch, broker)
 	}
-
-	brokerChannel := make(chan *admin.BrokerData)
 
 	loopBrokers := func(id int) {
 		ok := true
@@ -106,9 +147,6 @@ func (e *RocketmqExporter) collect(ch chan<- prometheus.Metric) {
 	}
 
 	brokerSize := len(e.brokerTable)
-	if brokerSize > 1 {
-		brokerSize = minx(brokerSize/2, e.workers)
-	}
 
 	for w := 1; w <= brokerSize; w++ {
 		go loopBrokers(w)
@@ -129,12 +167,4 @@ func (e *RocketmqExporter) collect(ch chan<- prometheus.Metric) {
 		"broker.master.size": len(e.brokerTable),
 	})
 
-}
-
-func minx(x int, y int) int {
-	if x < y {
-		return x
-	} else {
-		return y
-	}
 }

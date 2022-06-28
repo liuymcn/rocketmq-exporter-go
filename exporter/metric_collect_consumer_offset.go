@@ -113,7 +113,12 @@ func (e *RocketmqExporter) CollectConsumerOffset(
 			}
 
 			consumerLatency = time.Now().UnixMilli() - pullResult.GetMessageExts()[0].StoreTimestamp
-		} else {
+		} else if pullResult.Status == primitive.PullBrokerTimeout {
+			rlog.Error("CollectConsumerOffset PullFrom ", map[string]interface{}{
+				"queue":          queue,
+				"consumerOffset": pullResult.MinOffset,
+				"err":            "PullBrokerTimeout",
+			})
 			continue
 		}
 
@@ -140,7 +145,6 @@ func (e *RocketmqExporter) CollectConsumerOffset(
 				messageModel,
 			)
 		} else if strings.HasPrefix(topic, DlqGroupTopicPrefix) {
-			// TODO this topic has been already excluded
 			ch <- prometheus.MustNewConstMetric(
 				rocketmqGroupDlqDiff,
 				prometheus.GaugeValue,
