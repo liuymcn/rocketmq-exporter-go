@@ -89,7 +89,7 @@ This image is configurable using different flags
 | rocketmq.nameserver.use.domain | false | Address of rocketmq nameserver whether use domian |
 | rocketmq.nameserver | 127.0.0.1:9876 | Addresses (ip:port) of rocketmq nameserver |
 | rocketmq.nameserver.domain | rocketmq | Domain name of rocketmq nameserver |
-| rocketmq.nameserver.port | rocketmq:9876 | Port of rocketmq nameserver |
+| rocketmq.nameserver.port | 9876 | Port of rocketmq nameserver |
 | workers | 100 | Number of workers |
 | web.listen-address | :9999 | Address to listen on for web interface and telemetry |
 | web.telemetry-path | /metrics | Path under which to expose metrics |
