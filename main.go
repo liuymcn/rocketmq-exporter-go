@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net"
+	"strconv"
 
 	"github.com/rocketmq-exporter-go/exporter"
 
@@ -11,6 +12,11 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	// _ "net/http/pprof"
 )
+
+func toFlagInt(name string, help string, value string) *int {
+	flag.CommandLine.String(name, value, help) // hack around flag.Parse and glog.init flags
+	return kingpin.Flag(name, help).Default(value).Int()
+}
 
 func toFlagString(name string, help string, value string) *string {
 	flag.CommandLine.String(name, value, help) // hack around flag.Parse and glog.init flags
@@ -44,6 +50,7 @@ func main() {
 		useDomain               = toFlagBool("rocketmq.nameserver.use.domian", "Address of rocketmq nameserver whether use domian.", false, "false")
 		nameServerIpAddress     = toFlagStrings("rocketmq.nameserver", "Address (host:port) of rocketmq nameserver.", "127.0.0.1:9876")
 		nameServerDomainAddress = toFlagString("rocketmq.nameserver.domain", "Address (domain:port) of rocketmq nameserver.", "rocketmq.namesvr:9876")
+		nameServerPort          = toFlagInt("rocketmq.nameserver.port", "Port of rocketmq nameserver.", "9876")
 
 		opts = &exporter.RocketmqOptions{}
 	)
@@ -60,7 +67,7 @@ func main() {
 
 	if *useDomain {
 
-		var ips, err = LookupIP(*nameServerDomainAddress)
+		var ips, err = LookupIP(*nameServerDomainAddress, *nameServerPort)
 		rlog.Fatal("rocketmq.nameserver.domain parse err", map[string]interface{}{
 			"domain": *nameServerDomainAddress,
 			"err":    err,
@@ -84,7 +91,7 @@ func main() {
 // Because rocketmq client requires ip address rather than domain address
 // LookupIP looks up host
 // It returns a slice of that host's IPv4 addresses.
-func LookupIP(host string) ([]string, error) {
+func LookupIP(host string, port int) ([]string, error) {
 	ips, err := net.LookupIP(host)
 
 	if err != nil {
@@ -92,7 +99,7 @@ func LookupIP(host string) ([]string, error) {
 	}
 	var ipList = make([]string, len(ips))
 	for index, ip := range ips {
-		ipList[index] = ip.To4().String()
+		ipList[index] = ip.To4().String() + ":" + strconv.Itoa(port)
 	}
 
 	return ipList, nil
