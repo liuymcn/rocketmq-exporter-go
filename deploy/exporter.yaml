@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: rocketmq-exporter
-          image: [waiting...]/rocketmq-exporter
+          image: lucas987/rocketmq-exporter-go
           imagePullPolicy: Always
           ports:
             - name: http-port
@@ -25,10 +25,10 @@ spec:
           args: [ "--rocketmq.nameserver=[ip]", "--log.file.enable" ]
           resources:
             limits:
-              cpu: 0.5m
+              cpu: 500m
               memory: 50Mi
             requests:
-              cpu: 0.3m
+              cpu: 300m
               memory: 30Mi
           volumeMounts:
             - name: exporter-log
@@ -65,6 +65,6 @@ spec:
     app: rocketmq-exporter
   ports:
     - protocol: TCP
-      name: grpc
+      name: http
       port: 9999
       targetPort: 9999
