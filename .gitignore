@@ -13,6 +13,9 @@
 # build
 rocketmq-exporter-go
 linux*
+windows*
+drawin*
+build*
 
 # Test binary, built with `go test -c`
 *.test
