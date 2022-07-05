@@ -171,7 +171,6 @@ func Fly(
 	        </html>`))
 	})
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		// need more specific sarama check
 		w.Write([]byte("ok"))
 	})
 
