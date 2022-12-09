@@ -50,20 +50,13 @@ func (e *RocketmqExporter) collect(ch chan<- prometheus.Metric) {
 			var broker = e.getRandBrokerByTopic(retryTopic)
 			var brokerAddress = broker.SelectBrokerAddr()
 			onlineConsumerConnection, err := e.admin.QueryConsumerConnectionInfo(context.Background(), group, brokerAddress)
-			if err != nil {
-				rlog.Error("QueryConsumerConnectionInfo err ", map[string]interface{}{
-					"topic":         topic,
-					"group":         group,
-					"brokerAddress": brokerAddress,
-				})
-				return
+			if err == nil {
+				if _, ok := groupMap.Load(group); !ok {
+					groupMap.Store(group, onlineConsumerConnection)
+				}
 			}
+
 			e.CollectConsumerOffset(ch, topic, group, onlineConsumerConnection)
-
-			if _, ok := groupMap.Load(group); !ok {
-				groupMap.Store(group, onlineConsumerConnection)
-			}
-
 		}
 	}
 

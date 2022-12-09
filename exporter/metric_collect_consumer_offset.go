@@ -29,33 +29,37 @@ func (e *RocketmqExporter) CollectConsumerOffset(
 	var countOfOnlineConsumers = 0
 	var messageModel = admin.Clustering
 
-	if onlineConsumerConnection.MessageModel == "" {
-		messageModel = onlineConsumerConnection.MessageModel
-	}
+	if (onlineConsumerConnection != nil) {
 
-	if onlineConsumerConnection.Connections != nil {
-		countOfOnlineConsumers = len(onlineConsumerConnection.Connections)
-	}
-
-	if countOfOnlineConsumers > 0 {
-
-		var clientAddresses = make([]string, countOfOnlineConsumers)
-		var clientIds = make([]string, countOfOnlineConsumers)
-
-		for _, connection := range onlineConsumerConnection.Connections {
-			clientAddresses = append(clientAddresses, connection.ClientAddress)
-			clientIds = append(clientIds, connection.ClientId)
+		if onlineConsumerConnection.MessageModel == "" {
+			messageModel = onlineConsumerConnection.MessageModel
 		}
-
-		ch <- prometheus.MustNewConstMetric(
-			rocketmqGroupCount,
-			prometheus.GaugeValue,
-			float64(countOfOnlineConsumers),
-			strings.Join(clientAddresses, ","),
-			strings.Join(clientIds, ","),
-			topic,
-			group,
-		)
+	
+		if onlineConsumerConnection.Connections != nil {
+			countOfOnlineConsumers = len(onlineConsumerConnection.Connections)
+		}
+	
+		if countOfOnlineConsumers > 0 {
+	
+			var clientAddresses = make([]string, countOfOnlineConsumers)
+			var clientIds = make([]string, countOfOnlineConsumers)
+	
+			for _, connection := range onlineConsumerConnection.Connections {
+				clientAddresses = append(clientAddresses, connection.ClientAddress)
+				clientIds = append(clientIds, connection.ClientId)
+			}
+	
+			ch <- prometheus.MustNewConstMetric(
+				rocketmqGroupCount,
+				prometheus.GaugeValue,
+				float64(countOfOnlineConsumers),
+				strings.Join(clientAddresses, ","),
+				strings.Join(clientIds, ","),
+				topic,
+				group,
+			)
+	
+		}
 
 	}
 
@@ -112,7 +116,10 @@ func (e *RocketmqExporter) CollectConsumerOffset(
 				return
 			}
 
-			consumerLatency = time.Now().UnixMilli() - pullResult.GetMessageExts()[0].StoreTimestamp
+			if len(pullResult.GetMessageExts()) > 0 {
+				consumerLatency = time.Now().UnixMilli() - pullResult.GetMessageExts()[0].StoreTimestamp
+			}
+			
 		} else if pullResult.Status == primitive.PullBrokerTimeout {
 			rlog.Error("CollectConsumerOffset PullFrom ", map[string]interface{}{
 				"queue":          queue,
